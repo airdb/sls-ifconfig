@@ -43,6 +43,7 @@ func main() {
 
 	r.Post("/ip/item/create", HandleItemCreate)
 	r.Get("/ip/query", HandleItemQuery)
+	r.Get("/ip/{ip}", HandleQueryIP)
 
 	fmt.Println("hello", deployutil.GetDeployStage())
 
@@ -105,6 +106,33 @@ func HandleItemQuery(w http.ResponseWriter, r *http.Request) {
 	ip := r.URL.Query().Get("ip")
 
 	// ip := "129.226.148.218"
+	dbmap, _ := db.FindMap(ip, IPIPEN)
+	dbmap["ip"] = ip
+	mJson, _ := json.Marshal(dbmap)
+
+	// msg = dbmap["idc"]
+	// w.Write([]byte("welcome hello"))
+	// w.Write([]byte(msg))
+	w.Write(mJson)
+	w.WriteHeader(http.StatusOK)
+}
+
+// HandleItmeQuery - query item.
+// @Summary Query item.
+// @Description Query item api by id or name.
+// @Tags item
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} response "api response"
+// @Router /ip/{ip} [get]
+func HandleQueryIP(w http.ResponseWriter, r *http.Request) {
+	db, err := ipdb.NewCity("ipv4_en.ipdb")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ip := chi.URLParam(r, "ip")
+
 	dbmap, _ := db.FindMap(ip, IPIPEN)
 	dbmap["ip"] = ip
 	mJson, _ := json.Marshal(dbmap)
